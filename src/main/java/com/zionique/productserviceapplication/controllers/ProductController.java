@@ -3,6 +3,7 @@ package com.zionique.productserviceapplication.controllers;
 import com.zionique.productserviceapplication.clients.fakeStoreApi.FakeStoreProductDto;
 import com.zionique.productserviceapplication.dtos.ProductDto;
 import com.zionique.productserviceapplication.exceptions.NotFoundException;
+import com.zionique.productserviceapplication.models.Category;
 import com.zionique.productserviceapplication.models.Product;
 import com.zionique.productserviceapplication.services.ProductService;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ProductController {
     private ProductService productService;
+    private CategoryController categoryController;
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getSingleProduct(@PathVariable("id") Long id) throws NotFoundException {
@@ -55,7 +57,8 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<Product> addProduct(@RequestBody ProductDto productDto){
-        Product newProduct = productService.addProduct(productDto);
+
+        Product newProduct = productService.addProduct(getProductFromProductDto(productDto));
         ResponseEntity<Product> response = new ResponseEntity<>(newProduct, HttpStatus.OK);
         return response;
     }
@@ -63,7 +66,7 @@ public class ProductController {
 //    @PutMapping("/{id}")
     @PatchMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody ProductDto productDto){
-        Optional<Product> updatedProduct = productService.updateProduct(id, productDto);
+        Optional<Product> updatedProduct = productService.updateProduct(id, getProductFromProductDto(productDto));
         if (updatedProduct.isEmpty()){
             try {
                 throw new NotFoundException("Product with id: " + id + " not found");
@@ -75,5 +78,24 @@ public class ProductController {
         ResponseEntity<Product> response = new ResponseEntity<>(updatedProduct.get(), HttpStatus.OK);
         return response;
     }
+
+    private Product getProductFromProductDto(ProductDto productDto){
+        Category category = categoryController.getCategoryByName(productDto.getCategory());
+
+        Product product = Product.builder()
+                .title(productDto.getTitle())
+                .description(productDto.getDescription())
+                .price(productDto.getPrice())
+                .imageUrl(productDto.getImage())
+                .category(category)
+                .build();
+
+        return product;
+    }
+
+//    @GetMapping("category/{categoryName}")
+//    public List<Product> getProductsInCategory(@PathVariable("categoryName") String categoryName){
+//        return productService.getProductsInCategory(categoryName);
+//    }
 
 }

@@ -1,51 +1,51 @@
 package com.zionique.productserviceapplication.services;
 
-import com.zionique.productserviceapplication.clients.fakeStoreApi.FakeStoreClient;
 import com.zionique.productserviceapplication.models.Category;
 import com.zionique.productserviceapplication.models.Product;
+import com.zionique.productserviceapplication.repositories.CategoryRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Primary
 @AllArgsConstructor
-public class FakeStoryCategoryServiceImpl implements CategoryService{
-
-    private FakeStoreClient fakeStoreClient;
+public class CategoryServiceImpl implements CategoryService{
+    private CategoryRepository categoryRepository;
 
     @Override
     public List<Category> getAllCategories() {
-
-//        return fakeStoreClient.getAllCategories();
-        return null;
+        return categoryRepository.findAll();
     }
 
     @Override
     public List<Product> getProductsInCategory(String categoryName) {
-
-        return fakeStoreClient.getProductsInCategory(categoryName);
+//        return categoryRepository.findBy
+        return null;
     }
 
     @Override
     public Optional<Category> getCategoryByName(String categoryName) {
-        return Optional.empty();
+        return categoryRepository.findCategoryByName(categoryName);
     }
 
     @Override
     public Optional<Category> getCategoryById(Long id) {
-        return Optional.empty();
+        return categoryRepository.findCategoryById(id);
     }
 
     @Override
+    @Transactional
     public Integer deleteCategoryById(Long id) {
-        return null;
+        return categoryRepository.deleteCategoriesById(id);
     }
 
     @Override
     public Category addNewCategory(Category category) {
-        return null;
+        return categoryRepository.save(category);
     }
 }

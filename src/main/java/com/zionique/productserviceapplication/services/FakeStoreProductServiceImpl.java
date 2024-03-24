@@ -33,15 +33,31 @@ public class FakeStoreProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Optional<Product> updateProduct(Long id, ProductDto productDto) {
+    public Optional<Product> updateProduct(Long id, Product product) {
 
-        return fakeStoreClient.updateProduct(id, productDto);
+        return fakeStoreClient.updateProduct(id, getProductDtoFromProduct(product));
     }
 
     @Override
-    public Product addProduct(ProductDto productDto) {
+    public Product addProduct(Product product) {
 
-        return fakeStoreClient.addProduct(productDto);
+        return fakeStoreClient.addProduct(getProductDtoFromProduct(product));
+    }
+
+    @Override
+    public List<Product> getProductsInCategory(String categoryName) {
+        return null;
+    }
+
+    private ProductDto getProductDtoFromProduct(Product product){
+        ProductDto productDto = new ProductDto();
+        productDto.setCategory(product.getCategory().getName());
+        productDto.setTitle(product.getTitle());
+        productDto.setImage(product.getImageUrl());
+        productDto.setDescription(product.getDescription());
+        productDto.setPrice(product.getPrice());
+
+        return productDto;
     }
 
 }
