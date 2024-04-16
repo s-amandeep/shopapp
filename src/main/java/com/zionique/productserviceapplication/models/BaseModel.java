@@ -1,9 +1,6 @@
 package com.zionique.productserviceapplication.models;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +15,7 @@ public class BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+//    @Temporal(value = TemporalType.TIMESTAMP)
     private Date createdAt;
     private Date updatedAt;
 }

@@ -1,5 +1,9 @@
 package com.zionique.productserviceapplication.controllers;
 
+import com.zionique.productserviceapplication.clients.authenticationClient.AuthenticationClient;
+import com.zionique.productserviceapplication.clients.authenticationClient.dtos.Role;
+import com.zionique.productserviceapplication.clients.authenticationClient.dtos.SessionStatus;
+import com.zionique.productserviceapplication.clients.authenticationClient.dtos.ValidateTokenResponseDto;
 import com.zionique.productserviceapplication.clients.fakeStoreApi.FakeStoreProductDto;
 import com.zionique.productserviceapplication.dtos.ProductDto;
 import com.zionique.productserviceapplication.exceptions.NotFoundException;
@@ -9,6 +13,7 @@ import com.zionique.productserviceapplication.services.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +27,7 @@ import java.util.Optional;
 public class ProductController {
     private ProductService productService;
     private CategoryController categoryController;
+    private AuthenticationClient authenticationClient;
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getSingleProduct(@PathVariable("id") Long id) throws NotFoundException {
@@ -36,9 +42,39 @@ public class ProductController {
         return responseEntity;
     }
 
+
+    // Implementing Authentication, task: Make only admins access all the products
+
     @GetMapping
-    public List<Product> getAllProducts(){
-        return productService.getAllProducts();
+    public ResponseEntity<List<Product>> getAllProducts(@Nullable @RequestHeader("AUTH_TOKEN") String token,
+                                                        @Nullable @RequestHeader("USER_ID") Long userId){
+
+        // Check if token exists
+        if (token == null || userId == null){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        ValidateTokenResponseDto responseDto = authenticationClient.validate(token, userId);
+
+        // Check if token is valid
+        if (responseDto.getSessionStatus().equals(SessionStatus.INVALID)){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        // Check if user has permissions
+        boolean isUserAdmin = false;
+        for (Role role: responseDto.getUserDto().getRoles()){
+            if (role.getName().equals("ADMIN")){
+                isUserAdmin = true;
+            }
+        }
+
+        if (!isUserAdmin){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        List<Product> products = productService.getAllProducts();
+
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
