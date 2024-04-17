@@ -49,29 +49,29 @@ public class ProductController {
     public ResponseEntity<List<Product>> getAllProducts(@Nullable @RequestHeader("AUTH_TOKEN") String token,
                                                         @Nullable @RequestHeader("USER_ID") Long userId){
 
-        // Check if token exists
-        if (token == null || userId == null){
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-        ValidateTokenResponseDto responseDto = authenticationClient.validate(token, userId);
-
-        // Check if token is valid
-        if (responseDto.getSessionStatus().equals(SessionStatus.INVALID)){
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-
-        // Check if user has permissions
-        boolean isUserAdmin = false;
-        for (Role role: responseDto.getUserDto().getRoles()){
-            if (role.getName().equals("ADMIN")){
-                isUserAdmin = true;
-            }
-        }
-
-        if (!isUserAdmin){
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
+//        // Check if token exists
+//        if (token == null || userId == null){
+//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//        }
+//
+//        ValidateTokenResponseDto responseDto = authenticationClient.validate(token, userId);
+//
+//        // Check if token is valid
+//        if (responseDto.getSessionStatus().equals(SessionStatus.INVALID)){
+//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//        }
+//
+//        // Check if user has permissions
+//        boolean isUserAdmin = false;
+//        for (Role role: responseDto.getUserDto().getRoles()){
+//            if (role.getName().equals("ADMIN")){
+//                isUserAdmin = true;
+//            }
+//        }
+//
+//        if (!isUserAdmin){
+//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//        }
         List<Product> products = productService.getAllProducts();
 
         return new ResponseEntity<>(products, HttpStatus.OK);
